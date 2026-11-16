@@ -1,0 +1,31 @@
+# Database PostgreSQL untuk SIMRS dr. Tjahyo (lingkungan lokal/development).
+# Jalankan: docker compose up -d
+# Hentikan: docker compose stop
+# Hapus total (termasuk data): docker compose down -v
+#
+# Catatan: kredensial di bawah hanya untuk development di laptop.
+# Untuk produksi, gunakan password kuat dan jangan simpan di file ini.
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: simrs-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: simrs
+      POSTGRES_USER: simrs
+      POSTGRES_PASSWORD: simrs_local_dev
+      TZ: Asia/Jakarta
+      PGTZ: Asia/Jakarta
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - simrs-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U simrs -d simrs"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  simrs-pgdata:
