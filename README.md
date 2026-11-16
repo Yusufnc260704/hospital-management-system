@@ -262,17 +262,11 @@ Tes berjalan di SQLite in-memory sehingga tidak menyentuh database development.
 
 ## Keamanan
 
-| Area | Penerapan |
-|---|---|
-| **Rahasia** | `.env` tidak pernah masuk Git. `.gitignore` menutup `.env.*`, `*.pem`, `*.key`, `*.sql`, dan dump database. |
-| **Kata sandi** | Di-hash dengan bcrypt. **Tidak pernah** ditulis ke audit trail maupun log. |
-| **Login** | Maksimal 5 percobaan/60 detik per email + IP; akun nonaktif ditolak. |
-| **Otorisasi** | RBAC diperiksa di server lewat middleware `can:` — menyembunyikan tombol tidak cukup. |
-| **Sesi** | Disimpan di database, cookie `HttpOnly`, ID sesi diperbarui setelah login. |
-| **CSRF** | Token wajib di setiap form POST/PUT/DELETE. |
-| **Audit** | Mencatat pengguna, waktu, IP, perangkat, dan perubahan nilai. |
-| **Seeder** | Menolak membuat akun demo saat `APP_ENV=production`. |
-| **Pemeriksaan** | `bash scripts/cek-rahasia.sh` memeriksa repo sebelum push. |
+Kata sandi di-hash dengan bcrypt dan tidak pernah masuk audit trail. Login dibatasi
+5 percobaan per 60 detik, akun nonaktif ditolak, sesi disimpan di database dengan
+cookie `HttpOnly`, dan setiap form dilindungi token CSRF. Otorisasi diperiksa di
+server lewat middleware `can:`, bukan sekadar menyembunyikan tombol. `.env` tidak
+pernah masuk Git, dan seeder menolak berjalan saat `APP_ENV=production`.
 
 Pemeriksaan rahasia sebelum push:
 
