@@ -31,6 +31,9 @@ server** dan **jejak audit untuk setiap perubahan data**.
 > Ingin langsung mencoba? Jalankan 5 perintah di bagian [Mulai cepat](#mulai-cepat),
 > lalu masuk dengan akun demo di bagian [Akun demo](#akun-demo).
 
+📄 **Dokumentasi lengkap:** [Deskripsi sistem (Indonesia)](docs/deskripsi-sistem.md) ·
+[System description (English)](docs/system-description.md)
+
 <details>
 <summary><b>Daftar isi</b></summary>
 
