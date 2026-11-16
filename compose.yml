@@ -1,10 +1,13 @@
-# Database PostgreSQL untuk SIMRS dr. Tjahyo (lingkungan lokal/development).
-# Jalankan: docker compose up -d
-# Hentikan: docker compose stop
-# Hapus total (termasuk data): docker compose down -v
+# PostgreSQL untuk SIMRS dr. Tjahyo (lingkungan lokal/development).
 #
-# Catatan: kredensial di bawah hanya untuk development di laptop.
-# Untuk produksi, gunakan password kuat dan jangan simpan di file ini.
+#   docker compose up -d      nyalakan
+#   docker compose ps         cek status
+#   docker compose stop       hentikan (data tetap aman)
+#   docker compose down -v    HAPUS container + data (jangan dijalankan)
+#
+# Kredensial dibaca dari file .env (lihat .env.example).
+# Nilai default di bawah hanya untuk development lokal dan tidak pernah
+# dipakai di produksi.
 
 services:
   postgres:
@@ -12,17 +15,19 @@ services:
     container_name: simrs-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB: simrs
-      POSTGRES_USER: simrs
-      POSTGRES_PASSWORD: simrs_local_dev
+      POSTGRES_DB: ${DB_DATABASE:-simrs}
+      POSTGRES_USER: ${DB_USERNAME:-simrs}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-simrs_local_dev}
       TZ: Asia/Jakarta
       PGTZ: Asia/Jakarta
     ports:
+      # Hanya bisa diakses dari komputer ini. Jangan ubah ke "5432:5432"
+      # kecuali benar-benar paham risikonya.
       - "127.0.0.1:5432:5432"
     volumes:
       - simrs-pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U simrs -d simrs"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-simrs} -d ${DB_DATABASE:-simrs}"]
       interval: 5s
       timeout: 3s
       retries: 10

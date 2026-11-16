@@ -11,7 +11,15 @@ class PenggunaSeeder extends Seeder
 {
     public function run(): void
     {
+        // Akun demo tidak boleh pernah dibuat di server produksi.
+        if (app()->isProduction()) {
+            $this->command?->warn('PenggunaSeeder dilewati karena APP_ENV=production.');
+
+            return;
+        }
+
         $dokter = Dokter::orderBy('id')->first();
+        $password = (string) env('SEED_PASSWORD', 'password');
 
         $akun = [
             [
@@ -45,7 +53,7 @@ class PenggunaSeeder extends Seeder
                 ['email' => $data['email']],
                 [
                     'name' => $data['name'],
-                    'password' => 'password',
+                    'password' => $password,
                     'role' => $data['role']->value,
                     'dokter_id' => $data['dokter_id'],
                     'is_active' => true,
