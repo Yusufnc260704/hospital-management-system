@@ -38,6 +38,10 @@ data** — dua hal yang wajib ada di sistem kesehatan.
 |---|---|
 | ![Daftar obat](docs/screenshots/05-obat.png) | ![Pengguna](docs/screenshots/07-pengguna.png) |
 
+| Data pasien | Login pegawai |
+|---|---|
+| ![Pasien](docs/screenshots/06-pasien.png) | ![Login](docs/screenshots/02-login.png) |
+
 Satu akun, satu tampilan. Dashboard menyesuaikan peran pengguna:
 
 | Registrasi | Dokter | Apoteker |
