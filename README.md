@@ -44,16 +44,13 @@ server** dan **jejak audit untuk setiap perubahan data**.
 - [Alur penggunaan](#alur-penggunaan)
 - [Stack](#stack)
 - [Arsitektur](#arsitektur)
-- [Struktur database](#struktur-database)
 - [Mulai cepat](#mulai-cepat)
 - [Akun demo](#akun-demo)
 - [Pengujian](#pengujian)
 - [Keamanan](#keamanan)
 - [Keputusan teknis](#keputusan-teknis)
-- [Struktur folder](#struktur-folder)
 - [Batasan](#batasan)
 - [Rencana pengembangan](#rencana-pengembangan)
-- [Perintah harian](#perintah-harian)
 
 </details>
 
@@ -202,84 +199,6 @@ Alur satu permintaan:
    ke `audit_logs`.
 4. **Blade** merender halaman dengan menu yang sudah disaring sesuai izin.
 
-## Struktur database
-
-```mermaid
-erDiagram
-    POLI ||--o{ DOKTER : memiliki
-    POLI ||--o{ KUNJUNGAN : melayani
-    DOKTER ||--o{ KUNJUNGAN : menangani
-    PASIEN ||--o{ KUNJUNGAN : mendaftar
-    KUNJUNGAN ||--o| REKAM_MEDIS : menghasilkan
-    USERS |o--o| DOKTER : "akun dokter"
-    USERS ||--o{ LOGIN_LOGS : mencatat
-    USERS |o--o{ AUDIT_LOGS : melakukan
-
-    POLI {
-        bigint id PK
-        string nama
-        string deskripsi
-    }
-    DOKTER {
-        bigint id PK
-        bigint poli_id FK
-        string nama
-        string spesialisasi
-    }
-    PASIEN {
-        bigint id PK
-        string no_rm UK
-        string nik UK
-        string nama
-        date tanggal_lahir
-    }
-    KUNJUNGAN {
-        bigint id PK
-        bigint pasien_id FK
-        bigint poli_id FK
-        bigint dokter_id FK
-        date tanggal_kunjungan
-        string status
-    }
-    REKAM_MEDIS {
-        bigint id PK
-        bigint kunjungan_id FK
-        text diagnosa
-        text tindakan
-        text resep
-    }
-    OBAT {
-        bigint id PK
-        string nama
-        int stok
-        int stok_minimum
-        bigint harga
-    }
-    USERS {
-        bigint id PK
-        string name
-        string email UK
-        string role
-        boolean is_active
-        timestamp last_login_at
-    }
-    LOGIN_LOGS {
-        bigint id PK
-        bigint user_id FK
-        string status
-        string ip_address
-    }
-    AUDIT_LOGS {
-        bigint id PK
-        bigint user_id FK
-        string action
-        string auditable_type
-        bigint auditable_id
-        json old_values
-        json new_values
-    }
-```
-
 ## Mulai cepat
 
 **Prasyarat:** PHP 8.3+, Composer, Docker.
@@ -389,28 +308,6 @@ dipakai agar versi database seragam di semua komputer.
 **Pembatasan login.** `RateLimiter` membatasi percobaan per email + IP, dan
 setiap percobaan dicatat di `login_logs` untuk mendeteksi akses tidak sah.
 
-## Struktur folder
-
-```
-app/
-├── Enums/                  Role, Permission, StatusKunjungan
-├── Http/Controllers/       Satu controller per modul
-├── Models/
-│   └── Concerns/
-│       └── LogsAudit.php   Pencatat audit trail
-database/
-├── migrations/             Skema tabel
-├── seeders/                Data demo
-└── factories/              Data palsu untuk tes
-resources/views/
-├── layouts/app.blade.php   Kerangka dashboard + sidebar
-├── dashboard/              Satu view per peran
-└── audit-log/              Penampil audit trail
-scripts/
-└── cek-rahasia.sh          Pemeriksa kebocoran kredensial
-tests/Feature/              Tes alur nyata lewat HTTP
-```
-
 ## Batasan
 
 Proyek ini adalah **prototipe yang berjalan**, belum sistem siap produksi:
@@ -431,35 +328,6 @@ Proyek ini adalah **prototipe yang berjalan**, belum sistem siap produksi:
 - [ ] Dockerfile aplikasi agar `docker compose up` menjalankan semuanya
 - [ ] CI GitHub Actions menjalankan tes di setiap push
 - [ ] Integrasi SATUSEHAT
-
-## Perintah harian
-
-```bash
-docker compose ps                 # status database
-docker compose stop               # hentikan (data tetap aman)
-docker compose up -d              # nyalakan lagi
-php artisan migrate:fresh --seed  # reset database + data demo
-php artisan test                  # jalankan tes
-php artisan db:show               # info database
-```
-
-### Backup & restore
-
-```bash
-# Backup
-docker exec simrs-postgres pg_dump -U simrs simrs > backup-$(date +%Y%m%d-%H%M).sql
-
-# Restore
-cat backup-20260101-1200.sql | docker exec -i simrs-postgres psql -U simrs -d simrs
-```
-
-### Catatan produksi
-
-- Ganti seluruh password demo dan hapus akun demo.
-- Ganti `php artisan serve` dengan **Nginx + PHP-FPM**.
-- Aktifkan **HTTPS** dan batasi akses database dari jaringan luar.
-- Jadwalkan backup otomatis dan **uji restore**-nya.
-- Jangan pernah menyimpan `.env` atau file backup di Git.
 
 ---
 
